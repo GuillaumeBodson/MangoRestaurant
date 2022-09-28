@@ -27,5 +27,54 @@ namespace Mango.web.Controllers
 
             return View(list);
         }
+        public async Task<IActionResult> ProductCreate()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProductCreate(ProductDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var res = await _productService.CreateProductAsync<ResponseDto>(model);
+
+                if(res.IsSucces == true)
+                {
+                    return RedirectToAction("ProductIndex");
+                }
+            }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> ProductEdit(int id)
+        {
+            var response = await _productService.GetProductByIdAsync<ResponseDto>(id);
+
+            if(response?.IsSucces == true)
+            {
+                var product = JsonHelper.DeserializeIgnoringCase<ProductDto>(Convert.ToString(response.Result));
+                return View(product);
+            }
+
+            return NotFound();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProductEdit(ProductDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var res = await _productService.UpdateProductAsync<ResponseDto>(model);
+
+                if (res.IsSucces == true)
+                {
+                    return RedirectToAction("ProductIndex");
+                }
+            }
+
+            return View(model);
+        }
     }
 }
