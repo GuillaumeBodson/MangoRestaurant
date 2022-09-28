@@ -1,4 +1,6 @@
-﻿using Mango.web.Models;
+﻿using Mango.web.Helpers;
+using Mango.web.Models;
+using Mango.web.Models.Factories;
 using Mango.web.services.Iservices;
 using System.Net.Http;
 using System.Text;
@@ -8,12 +10,15 @@ namespace Mango.web.services
 {
     public class BaseService : IBaseService
     {
+        private readonly IHttpRequestMessageFactory _requestMessageFactory;
+
         public ResponseDto ResponseModel { get; set; }
         public IHttpClientFactory HttpClient { get; set; }
 
-        public BaseService(IHttpClientFactory httpClient)
+        public BaseService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory)
         {
             HttpClient = httpClient;
+            _requestMessageFactory = requestMessageFactory;
             ResponseModel = new ResponseDto();
         }
 
@@ -22,9 +27,7 @@ namespace Mango.web.services
             try
             {
                 var client = HttpClient.CreateClient("MangoApi");
-                HttpRequestMessage message = new();
-                message.Headers.Add("Accept", "application/json");
-                message.RequestUri = new(apiRequest.Url);
+                HttpRequestMessage message = _requestMessageFactory.Create(apiRequest.ApiType, apiRequest.Url);
                 client.DefaultRequestHeaders.Clear();
 
                 if(apiRequest.Data != null)
@@ -32,18 +35,12 @@ namespace Mango.web.services
 
                 HttpResponseMessage apiResponse = null;
 
-                message.Method = apiRequest.ApiType switch
-                {
-                    SD.ApiType.Post => HttpMethod.Post,
-                    SD.ApiType.Put => HttpMethod.Put,
-                    SD.ApiType.Delete => HttpMethod.Delete,
-                    _ => HttpMethod.Get,
-                };
-
                 apiResponse = await client.SendAsync(message);
 
                 var apiContent = await apiResponse.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<T>(apiContent);
+                
+                var res = JsonHelper.DeserializeIgnoringCase<T>(apiContent);
+                return res;
             }
             catch (Exception ex)
             {

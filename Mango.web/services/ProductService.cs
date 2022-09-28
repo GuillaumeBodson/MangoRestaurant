@@ -1,16 +1,15 @@
 ﻿using Mango.web.Models;
+using Mango.web.Models.Factories;
 using Mango.web.services.Iservices;
-using Mango.Web.Models;
+using Mango.web.Models;
 
 namespace Mango.web.services
 {
     public class ProductService : BaseService,IProductService
     {
-        private IHttpClientFactory _httpClientFactory;
         public ResponseDto ResponseModel { get; set; }
-        public ProductService(IHttpClientFactory httpClientFactory): base(httpClientFactory)
+        public ProductService(IHttpClientFactory httpClientFactory, IHttpRequestMessageFactory requestMessageFactory) : base(httpClientFactory, requestMessageFactory)
         {
-            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<T> CreateProductAsync<T>(ProductDto product)
@@ -58,11 +57,6 @@ namespace Mango.web.services
                 Url = SD.ProductApiBase + "/api/products/" + id,
                 AccessToken = ""
             }); 
-        }
-
-        public Task<T> SendAsync<T>(ApiRequest apiRequest)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<T> UpdateProductAsync<T>(ProductDto product)

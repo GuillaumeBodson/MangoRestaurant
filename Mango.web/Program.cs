@@ -1,4 +1,5 @@
 using Mango.web;
+using Mango.web.Models.Factories;
 using Mango.web.services;
 using Mango.web.services.Iservices;
 
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<IProductService, ProductService>();
 SD.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddFactories();
 
 builder.Services.AddControllersWithViews();
 
