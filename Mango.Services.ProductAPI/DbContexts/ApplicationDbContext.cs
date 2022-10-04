@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.ProductAPI.DbContexts
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
@@ -53,6 +53,6 @@ namespace Mango.Services.ProductAPI.DbContexts
                 CategoryName = "Entree"
             });
         }
-        }
+    }
 
 }
