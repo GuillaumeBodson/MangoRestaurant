@@ -1,6 +1,7 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Mango.Services.Identity.Initializer;
+using static System.Net.WebRequestMethods;
 
 namespace Mango.Services.Identity
 {
@@ -18,7 +19,10 @@ namespace Mango.Services.Identity
 
         public static IEnumerable<ApiScope> ApiScopes => new List<ApiScope>
         {
-            new ApiScope("mango", "Mango Server")
+            new ApiScope("mango", "Mango Server"),
+            new ApiScope("read", "Read your data"),
+            new ApiScope("write", "Write your data"),
+            new ApiScope("delete", "Delete your data"),
         };
 
         public static IEnumerable<Client> Clients => new List<Client>
@@ -35,8 +39,8 @@ namespace Mango.Services.Identity
                 ClientId = "mango",
                 ClientSecrets = {new Secret("secret".Sha256())},
                 AllowedGrantTypes = GrantTypes.Code,
-                RedirectUris = { "https://localhost:44398/signin-oidc" },
-                PostLogoutRedirectUris = { "https://localhost:44398/signout-callback-oidc" },
+                RedirectUris = { "https://localhost:44345/signin-oidc", "https://localhost:7137/signin-oidc" },
+                PostLogoutRedirectUris = { "https://localhost:44398/signout-callback-oidc" , "https://localhost:7137/signout-callback-oidc"},
                 AllowedScopes = new List<string>
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
