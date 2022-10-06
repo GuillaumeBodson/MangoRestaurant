@@ -38,13 +38,12 @@ namespace Mango.web.services
             throw new NotImplementedException();
         }
 
-        public async Task<T> GetAllProductsAsync<T>(string token)
+        public async Task<T> GetAllProductsAsync<T>()
         {
             return await SendAsync<T>(new ApiRequest()
             {
                 ApiType = SD.ApiType.Get,
                 Url = SD.ProductApiBase + "/api/products",
-                AccessToken = token
             });
         }
 

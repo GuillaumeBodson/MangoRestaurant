@@ -18,17 +18,11 @@ namespace Mango.web.Controllers
         }
         public async Task<IActionResult> ProductIndex()
         {
-            List<ProductDto> list = new();
-            var acessToken = await HttpContext.GetTokenAsync("access_token");
+            var response = await _productService.GetAllProductsAsync<ResponseDto>();
 
-            var response = await _productService.GetAllProductsAsync<ResponseDto>(acessToken);
-            
-            if(response?.IsSucces == true)
-            {
-                list = JsonHelper.DeserializeIgnoringCase<List<ProductDto>>(Convert.ToString(response.Result));
-            }
+            response.GetResult<List<ProductDto>>();
 
-            return View(list);
+            return View(response.GetResult<List<ProductDto>>());
         }
         public async Task<IActionResult> ProductCreate()
         {
@@ -59,7 +53,7 @@ namespace Mango.web.Controllers
 
             if(response?.IsSucces == true)
             {
-                var product = JsonHelper.DeserializeIgnoringCase<ProductDto>(Convert.ToString(response.Result));
+                var product = response.GetResult<ProductDto>;
                 return View(product);
             }
 
@@ -90,7 +84,7 @@ namespace Mango.web.Controllers
 
             if (res.IsSucces == true)
             {
-                return View(JsonHelper.DeserializeIgnoringCase<ProductDto>(Convert.ToString(res.Result)));
+                return View(res.GetResult<bool>());
             }
             return NotFound();
         }
@@ -103,7 +97,7 @@ namespace Mango.web.Controllers
             var res = await _productService.DeleteProductAsync<ResponseDto>(model.ProductId, token);
 
 
-            if (res.IsSucces == true && Boolean.TrueString == res.Result.ToString())
+            if (res.IsSucces == true && bool.TrueString == res.Result.ToString())
             {
                 return RedirectToAction("ProductIndex");
             }

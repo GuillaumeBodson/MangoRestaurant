@@ -1,5 +1,4 @@
-﻿using Mango.Services.ProductAPI.Helpers;
-using Mango.Services.ProductAPI.Models.Dto;
+﻿using Mango.Services.ProductAPI.Models.Dto;
 using Mango.Services.ProductAPI.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +17,6 @@ namespace Mango.Services.ProductAPI.Controllers
             _response = new ResponseDto();
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<object> Get()
         {
@@ -27,7 +25,6 @@ namespace Mango.Services.ProductAPI.Controllers
             return _response;
         }
 
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<object> Get(int id)
         {

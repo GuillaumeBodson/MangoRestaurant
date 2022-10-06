@@ -21,11 +21,21 @@ namespace Mango.web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var response = await _productService.GetAllProductsAsync<ResponseDto>("");
+            var response = await _productService.GetAllProductsAsync<ResponseDto>();
 
-            List<ProductDto> products = response.GetResult<List<ProductDto>>();
+            List<ProductDto> products = response?.GetResult<List<ProductDto>>();
 
             return View(products);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Details(int productId)
+        {
+            var response = await _productService.GetProductByIdAsync<ResponseDto>(productId, "");
+
+            ProductDto product = response?.GetResult<ProductDto>();
+
+            return View(product);
         }
 
         public IActionResult Privacy()
