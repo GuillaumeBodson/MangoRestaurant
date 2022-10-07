@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mango.Services.ShoppingCartAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mango.Services.ShoppingCartAPI.DBContexts
 {
@@ -8,5 +9,8 @@ namespace Mango.Services.ShoppingCartAPI.DBContexts
         {
 
         }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<CartDetails> CartDetails { get; set; }
+        public DbSet<CartHeader> CartHeaders { get; set; }
     }
 }
