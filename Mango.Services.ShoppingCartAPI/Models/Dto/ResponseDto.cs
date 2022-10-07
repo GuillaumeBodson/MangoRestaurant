@@ -1,8 +1,7 @@
-﻿using Mango.Services.ProductAPI.Helpers;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Mango.Services.ShoppingCartAPI.Helpers;
 using System.Text.Json;
 
-namespace Mango.Services.ProductAPI.Models.Dto
+namespace Mango.Services.ShoppingCartAPI.Models.Dto
 {
     public class ResponseDto
     {
@@ -27,16 +26,18 @@ namespace Mango.Services.ProductAPI.Models.Dto
             ErrorMessages = new List<string>() { ex.ToString() };
         }
 
-        public async Task SetResult<T>(Func<Task<T>> func)
+        public async Task<bool> TrySetResult<T>(Func<Task<T>> func)
         {
             try
             {
                 Result = await func();
+                return true;
             }
             catch (Exception ex)
             {
                 SetFailure(ex);
             }
+            return false;
         }
     }
 }

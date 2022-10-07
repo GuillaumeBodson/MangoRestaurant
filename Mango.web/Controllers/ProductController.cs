@@ -20,8 +20,6 @@ namespace Mango.web.Controllers
         {
             var response = await _productService.GetAllProductsAsync<ResponseDto>();
 
-            response.GetResult<List<ProductDto>>();
-
             return View(response.GetResult<List<ProductDto>>());
         }
         public async Task<IActionResult> ProductCreate()
