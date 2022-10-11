@@ -6,8 +6,13 @@ namespace Mango.web.services
 {
     public class CartService : BaseService, ICartService
     {
-        public CartService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory) : base(httpClient, requestMessageFactory)
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IProductService _productService;
+
+        public CartService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory, IHttpContextAccessor contextAccessor, IProductService productService) : base(httpClient, requestMessageFactory)
         {
+            _contextAccessor = contextAccessor;
+            _productService = productService;
         }
 
         public async Task<T> GetCartByUserId<T>(string userId, string token = null)
@@ -48,6 +53,27 @@ namespace Mango.web.services
                 Url = SD.ShoppingCartAPI + "/api/cart/RemoveCart/",
                 Data = cartId
             });
+        }
+        public async Task<CartDto> BuildCartDto(ProductDto product)
+        {
+            var resp = await _productService.GetProductByIdAsync<ResponseDto>(product.ProductId, "");
+
+            return new CartDto()
+            {
+                CartHeader = new()
+                {
+                    UserId = _contextAccessor.HttpContext.User.FindFirst("sub").Value
+                },
+                CartDetails = new List<CartDetailsDto>
+                {
+                    new()
+                    {
+                        Count = product.Count,
+                        ProductId = product.ProductId,
+                        Product = resp.GetResult<ProductDto>(),
+                    }
+                }
+            };
         }
     }
 }

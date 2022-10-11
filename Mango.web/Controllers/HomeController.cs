@@ -43,24 +43,7 @@ namespace Mango.web.Controllers
         [Authorize]
         public async Task<IActionResult> Details(ProductDto productDto)
         {
-            var resp = await _productService.GetProductByIdAsync<ResponseDto>(productDto.ProductId, "");
-
-            CartDto cart = new()
-            {
-                CartHeader = new()
-                {
-                    UserId = User.Claims.Where(x => x.Type == "sub")?.FirstOrDefault()?.Value
-                },
-                CartDetails = new List<CartDetailsDto>
-                {
-                    new()
-                    {
-                        Count = productDto.Count,
-                        ProductId = productDto.ProductId,
-                        Product = resp.GetResult<ProductDto>(),
-                    }
-                }
-            };
+            var cart = await _cartService.BuildCartDto(productDto);
 
             var accessToken = await HttpContext.GetTokenAsync("access_token");
 
