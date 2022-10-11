@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<IProductService, ProductService>();
 builder.Services.AddHttpClient<ICartService, CartService>();
 SD.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
-SD.ProductApiBase = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
+SD.ShoppingCartAPI = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 

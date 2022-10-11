@@ -44,7 +44,8 @@ namespace Mango.web.services
             {
                 ApiType = SD.ApiType.Get,
                 Url = SD.ProductApiBase + "/api/products",
-            });
+                AccessToken = ""
+            }); ;
         }
 
         public async Task<T> GetProductByIdAsync<T>(int id, string token)
