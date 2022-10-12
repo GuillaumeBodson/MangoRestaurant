@@ -1,0 +1,26 @@
+﻿using Mango.Services.CouponAPI.Models.Dto;
+using Mango.Services.CouponAPI.Repository;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Mango.Services.CouponAPI.Controllers
+{
+    [ApiController]
+    [Route("api/coupon")]
+    public class CouponAPIController : Controller
+    {
+        private readonly ICouponRepository _couponRepository;
+        private ResponseDto _response;
+        public CouponAPIController(ICouponRepository couponRepositoryc)
+        {
+            _response = new ResponseDto();
+            _couponRepository = couponRepositoryc;
+        }
+        [HttpGet("{couponCode}")]
+        public async Task<object> GetDiscountForCode(string code)
+        {
+            await _response.TrySetResult(async () => await _couponRepository.GetCouponByCode(code));
+
+            return _response;
+        }
+    }
+}
