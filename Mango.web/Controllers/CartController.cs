@@ -67,6 +67,10 @@ namespace Mango.web.Controllers
             return View();
         }
         [Authorize]
+        public async Task<IActionResult> Checkout()
+        {
+            return View(await LoadCartDto());
+        }
         private async Task<CartDto> LoadCartDto()
         {
             var userId = User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;
