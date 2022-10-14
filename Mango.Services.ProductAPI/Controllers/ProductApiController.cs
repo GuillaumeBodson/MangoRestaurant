@@ -20,7 +20,7 @@ namespace Mango.Services.ProductAPI.Controllers
         [HttpGet]
         public async Task<object> Get()
         {
-            await _response.SetResult(_productRepository.GetProducts);
+            await _response.SetResult(async () => await _productRepository.GetProducts());
 
             return _response;
         }

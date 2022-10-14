@@ -16,9 +16,9 @@ namespace Mango.Services.CouponAPI.Controllers
             _couponRepository = couponRepositoryc;
         }
         [HttpGet("{couponCode}")]
-        public async Task<object> GetDiscountForCode(string code)
+        public async Task<object> GetDiscountForCode(string couponCode)
         {
-            await _response.TrySetResult(async () => await _couponRepository.GetCouponByCode(code));
+            await _response.TrySetResult(async () => await _couponRepository.GetCouponByCode(couponCode));
 
             return _response;
         }

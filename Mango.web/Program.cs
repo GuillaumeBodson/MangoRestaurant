@@ -10,12 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<IProductService, ProductService>();
 builder.Services.AddHttpClient<ICartService, CartService>();
+builder.Services.AddHttpClient<ICouponService, CouponService>();
 SD.ProductApiBase = builder.Configuration["ServiceUrls:ProductAPI"];
 SD.ShoppingCartAPI = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
-SD.CouponAPI = builder.Configuration["ServiceUrls:ShoppingCartAPI"];
+SD.CouponAPIBase = builder.Configuration["ServiceUrls:CouponAPI"];
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 
 builder.Services.AddFactories();
 

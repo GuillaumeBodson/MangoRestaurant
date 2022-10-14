@@ -25,7 +25,7 @@ namespace Mango.Services.CouponAPI.Models.Dto
             ErrorMessages = new List<string>() { ex.ToString() };
         }
 
-        public async Task<bool> TrySetResult<T>(Func<Task<T>> func)
+        public async Task<bool> TrySetResult(Func<Task<object>> func)
         {
             try
             {

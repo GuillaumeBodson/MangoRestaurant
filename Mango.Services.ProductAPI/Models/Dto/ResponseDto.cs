@@ -27,7 +27,7 @@ namespace Mango.Services.ProductAPI.Models.Dto
             ErrorMessages = new List<string>() { ex.ToString() };
         }
 
-        public async Task SetResult<T>(Func<Task<T>> func)
+        public async Task SetResult(Func<Task<object>> func)
         {
             try
             {
