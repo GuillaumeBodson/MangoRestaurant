@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Mango.web.Models;
+using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 
 namespace Mango.web.Helpers
@@ -12,6 +14,13 @@ namespace Mango.web.Helpers
                 PropertyNameCaseInsensitive = true
             };
             return JsonSerializer.Deserialize<TValue>(json, jsonOptions);
+        }
+
+        public static StringContent ToEncodedJsonString(object data)
+        {
+            if(data == null)
+                return null;
+            return new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
         }
     }
 }

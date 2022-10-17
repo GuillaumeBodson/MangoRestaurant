@@ -2,6 +2,7 @@
 using Mango.web.Models;
 using Mango.web.Models.Factories;
 using Mango.web.services.Iservices;
+using Microsoft.AspNetCore.Authentication;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -11,49 +12,37 @@ namespace Mango.web.services
 {
     public class BaseService : IBaseService
     {
-        private readonly IHttpRequestMessageFactory _requestMessageFactory;
+        private readonly IHttpClientFactory _httpClient;
+        protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ResponseDto ResponseModel { get; set; }
-        public IHttpClientFactory HttpClient { get; set; }
+        protected ResponseDto ResponseModel { get; set; }
 
-        public BaseService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory)
+        public BaseService(IHttpClientFactory httpClient, IHttpContextAccessor httpContextAccessor)
         {
-            HttpClient = httpClient;
-            _requestMessageFactory = requestMessageFactory;
+            _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
             ResponseModel = new ResponseDto();
         }
 
-        public async Task<T> SendAsync<T>(ApiRequest apiRequest)
+        public async Task<T> SendAsync<T>(HttpRequestMessage message)
         {
             try
             {
-                var client = HttpClient.CreateClient("MangoApi");
-                HttpRequestMessage message = _requestMessageFactory.Create(apiRequest.ApiType, apiRequest.Url);
+                var client = _httpClient.CreateClient("MangoApi");
                 client.DefaultRequestHeaders.Clear();
 
-                if(apiRequest.Data != null)
-                    message.Content = new StringContent(JsonSerializer.Serialize(apiRequest.Data), Encoding.UTF8, "application/json");
+                await AddTokenToClient(client);
 
-                if (!string.IsNullOrEmpty(apiRequest.AccessToken))
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.AccessToken);
-
-                HttpResponseMessage apiResponse = null;
-
-                apiResponse = await client.SendAsync(message);
+                HttpResponseMessage apiResponse = await client.SendAsync(message);
 
                 var apiContent = await apiResponse.Content.ReadAsStringAsync();
-                
+
                 var res = JsonHelper.DeserializeIgnoringCase<T>(apiContent);
                 return res;
             }
             catch (Exception ex)
             {
-                var response = new ResponseDto
-                {
-                    DisplayMessage = "Error",
-                    ErrorMessages = new List<string>() { Convert.ToString(ex.Message) },
-                    IsSucces = false
-                };
+                var response = ResponseDto.NewErrorResponse(ex);
 
                 var res = JsonSerializer.Serialize(response);
                 return JsonSerializer.Deserialize<T>(res);
@@ -62,6 +51,14 @@ namespace Mango.web.services
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+        }
+
+        private async Task AddTokenToClient(HttpClient client)
+        {
+            string token = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

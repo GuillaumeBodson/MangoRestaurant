@@ -5,19 +5,16 @@ namespace Mango.web.services
 {
     public class CouponService : BaseService, ICouponService
     {
-        public CouponService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory) : base(httpClient, requestMessageFactory)
-        {
+        private readonly IHttpRequestMessageFactory _requestMessageFactory;
 
+        public CouponService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory, IHttpContextAccessor httpContextAccessor) : base(httpClient, httpContextAccessor)
+        {
+            _requestMessageFactory = requestMessageFactory;
         }
 
         public async Task<T> GetCoupon<T>(string couponCode, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest
-            {
-                ApiType = SD.ApiType.Get,
-                AccessToken = token,
-                Url = SD.CouponAPIBase + "/api/coupon/" + couponCode,
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreateGet(SD.CouponAPIBase + "/api/coupon/" + couponCode));
         }
     }
 }

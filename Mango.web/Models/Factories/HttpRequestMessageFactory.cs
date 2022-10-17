@@ -1,11 +1,13 @@
-﻿using System.Reflection.PortableExecutable;
-using static Mango.web.SD;
+﻿using Mango.web.Helpers;
 
 namespace Mango.web.Models.Factories
 {
     public interface IHttpRequestMessageFactory
     {
-        HttpRequestMessage Create(ApiType apiType, string url);
+        HttpRequestMessage CreateDelete(string url, object data = null);
+        HttpRequestMessage CreateGet(string url);
+        HttpRequestMessage CreatePost(string url, object data);
+        HttpRequestMessage CreatePut(string url, object data);
     }
 
     public class HttpRequestMessageFactory : IHttpRequestMessageFactory
@@ -17,22 +19,29 @@ namespace Mango.web.Models.Factories
             _factoryMethod = factoryMethod;
         }
 
-        public HttpRequestMessage Create(ApiType apiType, string url)
+        private HttpRequestMessage Create(HttpMethod apiType, string url, object data = null)
         {
-            var res = _factoryMethod();
+            var requestMessage = _factoryMethod();
 
-            res.Headers.Add("Accept", "application/json");
-            res.RequestUri = new(url);
+            requestMessage.Headers.Add("Accept", "application/json");
+            requestMessage.RequestUri = new(url);
 
-            res.Method = apiType switch
-            {
-                ApiType.Post => HttpMethod.Post,
-                ApiType.Put => HttpMethod.Put,
-                ApiType.Delete => HttpMethod.Delete,
-                _ => HttpMethod.Get,
-            };
+            requestMessage.Content = JsonHelper.ToEncodedJsonString(data);
 
-            return res;
+            requestMessage.Method = apiType;
+
+            return requestMessage;
         }
+        public HttpRequestMessage CreateGet(string url)
+            => Create(HttpMethod.Get, url);
+
+        public HttpRequestMessage CreatePost(string url, object data)
+            => Create(HttpMethod.Post, url, data);
+
+        public HttpRequestMessage CreatePut(string url, object data)
+            => Create(HttpMethod.Put, url, data);
+
+        public HttpRequestMessage CreateDelete(string url, object data = null)
+            => Create(HttpMethod.Delete, url, data);
     }
 }

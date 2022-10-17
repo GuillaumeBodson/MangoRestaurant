@@ -6,53 +6,30 @@ namespace Mango.web.services
 {
     public class CartService : BaseService, ICartService
     {
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IHttpRequestMessageFactory _requestMessageFactory;
         private readonly IProductService _productService;
 
-        public CartService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory, IHttpContextAccessor contextAccessor, IProductService productService) : base(httpClient, requestMessageFactory)
+        public CartService(IHttpClientFactory httpClient, IHttpRequestMessageFactory requestMessageFactory, IProductService productService, IHttpContextAccessor httpContextAccessor) : base(httpClient, httpContextAccessor)
         {
-            _contextAccessor = contextAccessor;
+            _requestMessageFactory = requestMessageFactory;
             _productService = productService;
         }
 
         public async Task<T> GetCartByUserId<T>(string userId, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Get,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/GetCart/" + userId
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreateGet(SD.ShoppingCartAPI + "/api/cart/GetCart/" + userId));
         }
         public async Task<T> AddToCart<T>(CartDto cartDto, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Post,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/AddCart/",
-                Data = cartDto
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/GetCart/", cartDto));
         }
         public async Task<T> UpdateCart<T>(CartDto cartDto, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Post,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/UpdateCart/",
-                Data = cartDto
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/UpdateCart/", cartDto));
         }
         public async Task<T> RemoveFromCart<T>(int cartId, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Post,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/RemoveCart/",
-                Data = cartId
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/RemoveCart/", cartId));
         }
         public async Task<CartDto> BuildCartDto(ProductDto product)
         {
@@ -62,7 +39,7 @@ namespace Mango.web.services
             {
                 CartHeader = new()
                 {
-                    UserId = _contextAccessor.HttpContext.User.FindFirst("sub").Value
+                    UserId = _httpContextAccessor.HttpContext.User.FindFirst("sub").Value
                 },
                 CartDetails = new List<CartDetailsDto>
                 {
@@ -78,24 +55,12 @@ namespace Mango.web.services
 
         public async Task<T> ApplyCoupon<T>(CartDto cart, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Post,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/ApplyCoupon",
-                Data = cart
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/ApplyCoupon", cart));
         }
 
         public async Task<T> RemoveCoupon<T>(string userId, string token = null)
         {
-            return await SendAsync<T>(new ApiRequest()
-            {
-                ApiType = SD.ApiType.Post,
-                AccessToken = token,
-                Url = SD.ShoppingCartAPI + "/api/cart/RemoveCoupon",
-                Data = userId
-            });
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/RemoveCoupon", userId));
         }
     }
 }

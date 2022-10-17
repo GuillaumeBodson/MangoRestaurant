@@ -37,5 +37,14 @@ namespace Mango.web.Models
                 SetFailure(ex);
             }
         }
+        public static ResponseDto NewErrorResponse(Exception ex)
+        {
+            var response = new ResponseDto
+            {
+                DisplayMessage = "Error",
+            };
+            response.SetFailure(ex);
+            return response;
+        }
     }
 }
