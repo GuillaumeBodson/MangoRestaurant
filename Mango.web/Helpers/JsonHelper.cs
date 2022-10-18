@@ -16,7 +16,7 @@ namespace Mango.web.Helpers
             return JsonSerializer.Deserialize<TValue>(json, jsonOptions);
         }
 
-        public static StringContent ToEncodedJsonString(object data)
+        public static StringContent ToUTF8EncodedJsonStringContent(this object data)
         {
             if(data == null)
                 return null;

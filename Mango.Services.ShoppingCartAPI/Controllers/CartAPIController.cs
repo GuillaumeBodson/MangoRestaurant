@@ -1,4 +1,6 @@
-﻿using Mango.Services.ShoppingCartAPI.Models.Dto;
+﻿using Mango.MessageBus;
+using Mango.Services.ShoppingCartAPI.Messages;
+using Mango.Services.ShoppingCartAPI.Models.Dto;
 using Mango.Services.ShoppingCartAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +11,13 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : Controller
     {
         private readonly ICartRepository _cartRepository;
+        private readonly IMessageBus _messageBus;
         private ResponseDto _response;
 
-        public CartAPIController(ICartRepository cartRepository)
+        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus)
         {
             _cartRepository = cartRepository;
+            _messageBus = messageBus;
             _response = new ResponseDto();
         }
         [HttpGet("GetCart/{userId}")]
@@ -53,6 +57,30 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         public async Task<object> RemoveCoupon([FromBody] string userId)
         {
             await _response.TrySetResult(async () => await _cartRepository.RemoveCoupon(userId));
+
+            return _response;
+        }
+
+        [HttpPost("Checkout")]
+        public async Task<object> Checkout([FromBody] CheckoutHeaderDto checkouHeader)
+        {
+            try
+            {
+                var cart = await _cartRepository.GetCartByUserId(checkouHeader.UserId);
+
+                if (cart == null)
+                {
+                    return BadRequest();
+                }
+
+                checkouHeader.CartDetails = cart.CartDetails;
+
+                await _messageBus.PublishMessage(checkouHeader, "checkoutmessagetopic");
+            }
+            catch (Exception ex)
+            {
+                _response.SetFailure(ex);
+            }
 
             return _response;
         }

@@ -71,6 +71,25 @@ namespace Mango.web.Controllers
         {
             return View(await LoadCartDto());
         }
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Checkout(CartDto cart)
+        {
+            try
+            {
+                var accesToken = await HttpContext.GetTokenAsync("access_token");
+                var response = await _cartService.Checkout<ResponseDto>(cart.CartHeader, accesToken);
+                return RedirectToAction(nameof(Confirmation));
+            }
+            catch
+            {
+                return View(cart);
+            }
+        }
+        public IActionResult Confirmation()
+        {
+            return View();
+        }
         private async Task<CartDto> LoadCartDto()
         {
             var userId = User.Claims.FirstOrDefault(x => x.Type == "sub")?.Value;

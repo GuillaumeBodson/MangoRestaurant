@@ -26,7 +26,7 @@ namespace Mango.web.Models.Factories
             requestMessage.Headers.Add("Accept", "application/json");
             requestMessage.RequestUri = new(url);
 
-            requestMessage.Content = JsonHelper.ToEncodedJsonString(data);
+            requestMessage.Content = data.ToUTF8EncodedJsonStringContent();
 
             requestMessage.Method = apiType;
 

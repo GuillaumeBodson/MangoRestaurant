@@ -62,5 +62,9 @@ namespace Mango.web.services
         {
             return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/RemoveCoupon", userId));
         }
+        public async Task<T> Checkout<T>(CartHeaderDto cartHeader, string  token = null)
+        {
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/Checkout", cartHeader));
+        }
     }
 }
