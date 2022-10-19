@@ -51,7 +51,7 @@ namespace Mango.web.Controllers
 
             if(response?.IsSucces == true)
             {
-                var product = response.GetResult<ProductDto>;
+                var product = response.GetResult<ProductDto>();
                 return View(product);
             }
 

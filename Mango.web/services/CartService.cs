@@ -21,7 +21,7 @@ namespace Mango.web.services
         }
         public async Task<T> AddToCart<T>(CartDto cartDto, string token = null)
         {
-            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/GetCart/", cartDto));
+            return await SendAsync<T>(_requestMessageFactory.CreatePost(SD.ShoppingCartAPI + "/api/cart/AddCart/", cartDto));
         }
         public async Task<T> UpdateCart<T>(CartDto cartDto, string token = null)
         {
