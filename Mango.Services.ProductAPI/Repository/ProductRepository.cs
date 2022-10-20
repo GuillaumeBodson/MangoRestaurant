@@ -23,7 +23,7 @@ namespace Mango.Services.ProductAPI.Repository
             if(product.ProductId > 0)
                 _db.Products.Update(product);
             else
-                await _db.Products.AddAsync(product);
+                _db.Products.Add(product);
 
             await _db.SaveChangesAsync();
 

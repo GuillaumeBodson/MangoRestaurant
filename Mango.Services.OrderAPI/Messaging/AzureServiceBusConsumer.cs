@@ -9,15 +9,35 @@ using System.Text;
 
 namespace Mango.Services.OrderAPI.Messaging
 {
-    public class AzureServiceBusConsumer
+    public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     {
         private readonly OrderRepository _orderRepository;
         private readonly AzureServiceBusSettings _azureServiceBusSettings;
+
+        private ServiceBusProcessor _checkoutProcessor;
 
         public AzureServiceBusConsumer(OrderRepository orderRepository, IOptions<AzureServiceBusSettings> azureOptions)
         {
             _orderRepository = orderRepository;
             _azureServiceBusSettings = azureOptions.Value;
+            var client = new ServiceBusClient(_azureServiceBusSettings.ConnectionString);
+            _checkoutProcessor = client.CreateProcessor(_azureServiceBusSettings.CheckoutMessageTopic, _azureServiceBusSettings.SubscriptionName);
+        }
+        public async Task Start()
+        {
+            _checkoutProcessor.ProcessMessageAsync += OnCheckoutMessageReceived;
+            _checkoutProcessor.ProcessErrorAsync += ErrorHandler;
+            await _checkoutProcessor.StartProcessingAsync();
+        }
+        public async Task Stop()
+        {
+            await _checkoutProcessor.StopProcessingAsync();
+            await _checkoutProcessor.DisposeAsync();
+        }
+        private Task ErrorHandler(ProcessErrorEventArgs args)
+        {
+            Console.WriteLine(args.Exception.ToString());
+            return Task.CompletedTask;
         }
         private async Task OnCheckoutMessageReceived(ProcessMessageEventArgs args)
         {
@@ -51,6 +71,7 @@ namespace Mango.Services.OrderAPI.Messaging
                 OrderTotal = checkoutHeader.OrderTotal,
                 PaymenStatus = false
             };
+            orderHeader.CartTotalItems = orderHeader.OrderDetails.Sum(x => x.Count);
 
             await _orderRepository.AddOrder(orderHeader);
         }

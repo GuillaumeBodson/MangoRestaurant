@@ -1,4 +1,4 @@
-﻿namespace Mango.web.services
+﻿namespace Mango.web.services.Iservices
 {
     public interface ICouponService
     {
