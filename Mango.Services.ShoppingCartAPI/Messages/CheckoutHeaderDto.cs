@@ -33,5 +33,13 @@ namespace Mango.Services.ShoppingCartAPI.Messages
                 }
             }
         }
+
+        public async Task CheckProductsPrice(Func<Task<IEnumerable<ProductDto>>> getProducts)
+        {
+            var products = await getProducts();
+
+            if (CartDetails.Any(x => x.Product.Price != products.First(y => y.ProductId == x.ProductId).Price))
+                throw new Exception("Products price has changed, plase confirm");
+        }
     }
 }

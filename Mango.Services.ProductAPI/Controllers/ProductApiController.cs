@@ -25,6 +25,14 @@ namespace Mango.Services.ProductAPI.Controllers
             return _response;
         }
 
+        [HttpGet("multiple")]
+        public async Task<object> Get([FromQuery]IEnumerable<int> ids)
+        {
+            await _response.SetResult(async () => (await _productRepository.GetProducts()).Where(x => ids.Contains(x.ProductId)));
+
+            return _response;
+        }
+
         [HttpGet("{id}")]
         public async Task<object> Get(int id)
         {
