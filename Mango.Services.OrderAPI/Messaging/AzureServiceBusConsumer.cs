@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Mango.MessageBus;
 using Mango.Services.OrderAPI.Helpers;
 using Mango.Services.OrderAPI.Messages;
 using Mango.Services.OrderAPI.Models;
@@ -12,13 +13,15 @@ namespace Mango.Services.OrderAPI.Messaging
     public class AzureServiceBusConsumer : IAzureServiceBusConsumer
     {
         private readonly OrderRepository _orderRepository;
+        private readonly IMessageBus _messageBus;
         private readonly AzureServiceBusSettings _azureServiceBusSettings;
 
         private ServiceBusProcessor _checkoutProcessor;
 
-        public AzureServiceBusConsumer(OrderRepository orderRepository, IOptions<AzureServiceBusSettings> azureOptions)
+        public AzureServiceBusConsumer(OrderRepository orderRepository, IOptions<AzureServiceBusSettings> azureOptions, IMessageBus messageBus)
         {
             _orderRepository = orderRepository;
+            _messageBus = messageBus;
             _azureServiceBusSettings = azureOptions.Value;
             var client = new ServiceBusClient(_azureServiceBusSettings.ConnectionString);
             _checkoutProcessor = client.CreateProcessor(_azureServiceBusSettings.CheckoutMessageTopic, _azureServiceBusSettings.SubscriptionName);
@@ -74,6 +77,26 @@ namespace Mango.Services.OrderAPI.Messaging
             orderHeader.CartTotalItems = orderHeader.OrderDetails.Sum(x => x.Count);
 
             await _orderRepository.AddOrder(orderHeader);
+
+            PaymentRequestMessage paymentRequestMessage = new()
+            {
+                CardNumber = orderHeader.CartNumber,
+                CVV = orderHeader.CVV,
+                ExpiryMonthYear = orderHeader.ExpiryMonthYear,
+                OrderId = orderHeader.OrderHeaderId,
+                OrderTotal = orderHeader.OrderTotal,
+                Name = orderHeader.FirstName + " " + orderHeader.LastName
+            };
+
+            try
+            {
+                await _messageBus.PublishMessage(paymentRequestMessage, "");
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }
