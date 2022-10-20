@@ -24,6 +24,7 @@ namespace Mango.Services.ShoppingCartAPI.Models.Dto
         {
             IsSucces = false;
             ErrorMessages = new List<string>() { ex.ToString() };
+            DisplayMessage = ex.Message;
         }
 
         public async Task<bool> TrySetResult<T>(Func<Task<T>> func)

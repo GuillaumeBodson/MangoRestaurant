@@ -1,4 +1,5 @@
-﻿using Mango.MessageBus;
+﻿using Azure;
+using Mango.MessageBus;
 using Mango.Services.ShoppingCartAPI.Models.Dto;
 
 namespace Mango.Services.ShoppingCartAPI.Messages
@@ -20,5 +21,17 @@ namespace Mango.Services.ShoppingCartAPI.Messages
         public string ExpiryMonthYear { get; set; }
         public int CartTotalItems { get; set; }
         public IEnumerable<CartDetailsDto> CartDetails  { get; set; }
+
+        public async Task CheckCouponAvailability(Func<Task<CouponDto>> getCoupon)
+        {
+            if (!string.IsNullOrEmpty(CouponCode))
+            {
+                CouponDto coupon = await getCoupon();
+                if (coupon.DiscountAmount != DiscountTotal)
+                {
+                    throw new Exception("Coupon Price has chnaged please Confirm");
+                }
+            }
+        }
     }
 }

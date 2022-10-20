@@ -11,12 +11,14 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     public class CartAPIController : Controller
     {
         private readonly ICartRepository _cartRepository;
+        private readonly ICouponRepository _couponRepository;
         private readonly IMessageBus _messageBus;
         private ResponseDto _response;
 
-        public CartAPIController(ICartRepository cartRepository, IMessageBus messageBus)
+        public CartAPIController(ICartRepository cartRepository, ICouponRepository couponRepository, IMessageBus messageBus)
         {
             _cartRepository = cartRepository;
+            _couponRepository = couponRepository;
             _messageBus = messageBus;
             _response = new ResponseDto();
         }
@@ -62,20 +64,18 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         }
 
         [HttpPost("Checkout")]
-        public async Task<object> Checkout([FromBody] CheckoutHeaderDto checkouHeader)
+        public async Task<object> Checkout([FromBody] CheckoutHeaderDto checkoutHeader)
         {
             try
             {
-                var cart = await _cartRepository.GetCartByUserId(checkouHeader.UserId);
+                var cart = await _cartRepository.GetCartByUserId(checkoutHeader.UserId)
+                    ?? throw new ArgumentNullException($"No cart registered for the user {checkoutHeader.UserId}");
+                
+                await checkoutHeader.CheckCouponAvailability(async () => await _couponRepository.GetCoupon(checkoutHeader.CouponCode));
 
-                if (cart == null)
-                {
-                    return BadRequest();
-                }
+                checkoutHeader.CartDetails = cart.CartDetails;
 
-                checkouHeader.CartDetails = cart.CartDetails;
-
-                await _messageBus.PublishMessage(checkouHeader, "checkoutmessagetopic");
+                await _messageBus.PublishMessage(checkoutHeader, "checkoutmessagetopic");
             }
             catch (Exception ex)
             {

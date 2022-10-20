@@ -12,5 +12,12 @@ namespace Mango.Services.ShoppingCartAPI.Helpers
             };
             return JsonSerializer.Deserialize<TValue>(json, jsonOptions);
         }
+        public async static Task<T> GetDeserializeHttpResponseContent<T>(this HttpClient client, string requestUri)
+        {
+            var response = await client.GetAsync(requestUri);
+            var content = await response.Content.ReadAsStringAsync();
+
+            return DeserializeIgnoringCase<T>(content);
+        }
     }
 }
